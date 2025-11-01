@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC Animals</title>
+    <!-- Load Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to external stylesheet --><link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+
+    <div id="app-container" class="mx-auto flex flex-col items-center justify-center">
+
+        <!-- Header and Fullscreen Buttons --><header class="w-full text-center mb-8 md:mb-12">
+            <!-- Title color changed to text-teal-600 (Vibrant, gender-neutral) -->
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-teal-600 mb-6 md:mb-8 mt-4 animate-bounce-slow">ABC Animals!</h1>
+            
+            <!-- Full Screen Button (Kept lime green as requested vibrant green) --><button id="fullscreen-btn" 
+                    class="bg-lime-500 hover:bg-lime-400 text-white font-black py-4 px-10 rounded-full shadow-xl transition duration-300 transform hover:scale-105 active:scale-95 text-xl md:text-2xl tracking-wider border-b-8 border-lime-700 mb-8 md:mb-12">
+                Go Fullscreen
+            </button>
+            <!-- NEW Exit Fullscreen Button (Hidden by default) --><button id="exit-fullscreen-btn" 
+                    class="bg-red-500 hover:bg-red-400 text-white font-black py-4 px-10 rounded-full shadow-xl transition duration-300 transform hover:scale-105 active:scale-95 text-xl md:text-2xl tracking-wider border-b-8 border-red-700 mb-8 md:mb-12 hidden">
+                Exit Fullscreen
+            </button>
+        </header>
+
+        <!-- Alphabet Grid (The main view) --><div id="alphabet-grid" class="w-full max-w-5xl grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-4 sm:gap-5 md:gap-6 mb-8 md:mb-12">
+            <!-- Buttons will be injected here by JavaScript --></div>
+
+        <!-- Video Player Container (Hidden by default) --><div id="video-container">
+            <!-- Close Button added here --><button id="close-video-btn" class="flex items-center justify-center">
+                &times;
+            </button>
+            
+            <h2 id="video-title" class="text-center"></h2>
+            
+            <!-- Target Placeholder for HTML Video Tag --><div id="local-video-wrapper">
+                <video id="local-video-player" controls preload="auto" poster="https://placehold.co/1280x720/60a5fa/ffffff?text=Video+Loading...">
+                    <source src="videos/default_video.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        
+        // --- VIDEO MAPPING FOR EACH LETTER ---
+        // To replace videos, simply update the file paths in this map.
+        const VIDEO_MAP = {
+            A: 'videos/A_is_for_Alligator.mp4',
+            B: 'videos/B_is_for_Bear.mp4',
+            C: 'videos/C_is_for_Cat.mp4',
+            D: 'videos/D_is_for_Dog.mp4',
+            E: 'videos/E_is_for_Elephant.mp4',
+            F: 'videos/F_is_for_Frog.mp4', // Corrected file extension and animal
+            G: 'videos/G_is_for_Gorilla.mp4',
+            H: 'videos/H_is_for_Horse.mp4',
+            I: 'videos/I_is_for_Iguana.mp4',
+            J: 'videos/J_is_for_Jellyfish.mp4',
+            K: 'videos/K_is_for_Kangaroo.mp4',
+            L: 'videos/L_is_for_Lion.mp4',
+            M: 'videos/M_is_for_Monkey.mp4',
+            N: 'videos/N_is_for_Narwhal.mp4',
+            O: 'videos/O_is_for_Ostrich.mp4',
+            P: 'videos/P_is_for_Pig.mp4',
+            Q: 'videos/Q_is_for_Quail.mp4',
+            R: 'videos/R_is_for_Rooster.mp4',
+            S: 'videos/S_is_for_Snake.mp4',
+            T: 'videos/T_is_for_Turtle.mp4',
+            U: 'videos/U_is_for_Umbrella_Bird.mp4', // Used underscore for space
+            V: 'videos/V_is_for_Vampire_Bat.mp4', // Used underscore for space
+            W: 'videos/W_is_for_Wolf.mp4',
+            X: 'videos/X_is_for_X_Ray_Fish.mp4', // Used underscore for space
+            Y: 'videos/Y_is_for_Yak.mp4',
+            Z: 'videos/Z_is_for_Zebra.mp4',
+        };
+
+        const FALLBACK_VIDEO_SRC = 'videos/ABC_Full_Fallback.mp4';
+        
+        const grid = document.getElementById('alphabet-grid');
+        const videoContainer = document.getElementById('video-container');
+        const videoTitle = document.getElementById('video-title');
+        const enterFullscreenBtn = document.getElementById('fullscreen-btn');
+        const exitFullscreenBtn = document.getElementById('exit-fullscreen-btn');
+        const appContainer = document.getElementById('app-container');
+        const closeVideoBtn = document.getElementById('close-video-btn');
+        const videoPlayer = document.getElementById('local-video-player');
+        
+        // --- Cross-Browser Fullscreen Helpers ---
+
+        function requestFullScreen(element) {
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.mozRequestFullScreen) { 
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullscreen) { 
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) { 
+                element.msRequestFullscreen();
+            }
+        }
+
+        function exitFullScreen() {
+            if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullScreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) { 
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { 
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { 
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        // --- View Restoration & State Management ---
+
+        function updateAppFullscreenState(isFullScreen) {
+            if (isFullScreen) {
+                enterFullscreenBtn.style.display = 'none';
+                exitFullscreenBtn.style.display = 'inline-block';
+            } else {
+                enterFullscreenBtn.style.display = 'inline-block';
+                exitFullscreenBtn.style.display = 'none';
+            }
+        }
+
+        function restoreHomePageViewContent() {
+            videoContainer.style.display = 'none';
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0; 
+
+            grid.style.display = 'grid';
+            document.querySelector('header h1').style.display = 'block'; 
+        }
+
+        // --- Core Logic ---
+
+        function handleAlphabetClick(letter) {
+            grid.style.display = 'none';
+            enterFullscreenBtn.style.display = 'none'; 
+            exitFullscreenBtn.style.display = 'none'; 
+            document.querySelector('header h1').style.display = 'none';
+
+            // Get the video path from the map, using the fallback if not found
+            const videoPath = VIDEO_MAP[letter] || FALLBACK_VIDEO_SRC;
+
+            videoTitle.textContent = `${letter} for ${getExampleWord(letter)}!`;
+
+            videoContainer.style.display = 'flex';
+            
+            videoPlayer.querySelector('source').src = videoPath;
+            videoPlayer.load(); // Load the new source
+            
+            requestFullScreen(videoContainer);
+
+            videoPlayer.play().catch(error => {
+                 console.log("Autoplay was prevented. User must click play.", error);
+            });
+        }
+
+        function getExampleWord(letter) {
+            const words = {
+                A: "Alligator", B: "Bear", C: "Cat", D: "Dog", E: "Elephant",
+                F: "Frog", G: "Gorilla", H: "Horse", I: "Iguana", J: "Jellyfish",
+                K: "Kangaroo", L: "Lion", M: "Monkey", N: "Narwhal", O: "Ostrich",
+                P: "Pig", Q: "Quail", R: "Rooster", S: "Snake", T: "Turtle",
+                U: "Umbrella Bird", V: "Vampire Bat", W: "Wolf", X: "X-Ray Fish",
+                Y: "Yak", Z: "Zebra"
+            };
+            return words[letter] || "Amazing Animal";
+        }
+
+        function handleVideoEnd() {
+            restoreHomePageViewContent();
+            exitFullScreen(); 
+        }
+
+        // --- Initialization ---
+
+        function createAlphabetButtons() {
+            for (let i = 0; i < ALPHABET.length; i++) {
+                const letter = ALPHABET[i];
+                const button = document.createElement('button');
+                button.textContent = letter;
+                // Updated class for Teal Green button (bg-teal-400 / border-teal-600)
+                button.className = 'alphabet-button bg-teal-400 text-white font-extrabold text-3xl md:text-5xl p-6 rounded-3xl shadow-2xl border-b-8 border-teal-600 transition duration-150 transform hover:bg-teal-300 hover:shadow-3xl active:translate-y-2 active:border-b-0';
+                button.onclick = () => handleAlphabetClick(letter);
+                grid.appendChild(button);
+            }
+        }
+
+        function setupEventListeners() {
+            closeVideoBtn.addEventListener('click', handleVideoEnd);
+            videoPlayer.addEventListener('ended', handleVideoEnd);
+            enterFullscreenBtn.addEventListener('click', () => {
+                requestFullScreen(appContainer);
+            });
+            exitFullscreenBtn.addEventListener('click', () => {
+                exitFullScreen();
+            });
+            document.addEventListener('fullscreenchange', (event) => {
+                const isAppFullscreen = document.fullscreenElement === appContainer;
+
+                if (!document.fullscreenElement) {
+                    if (videoContainer.style.display === 'flex') {
+                        restoreHomePageViewContent(); 
+                        requestFullScreen(appContainer); 
+                    } else {
+                        updateAppFullscreenState(false);
+                    }
+                } else if (isAppFullscreen) {
+                    updateAppFullscreenState(true);
+                }
+            });
+        }
+
+        createAlphabetButtons();
+        setupEventListeners();
+
+    </script>
+
+</body>
+</html>

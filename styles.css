@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #e0f2f7; /* Lighter background for the app container */
+    height: auto; 
+    overflow-y: auto; 
+    /* Cocomelon-style Zoo Background */
+    background-image: url('images/ABC Animals Zoo Background.jpg'); /* Updated image reference to .jpg */
+    background-size: cover;
+    background-position: top center; /* Adjust position to show more of the entrance */
+    background-repeat: no-repeat;
+    background-attachment: fixed; 
+    min-height: 100vh; /* Ensure body covers full viewport height for background */
+    display: flex; /* Use flexbox to center app container */
+    justify-content: center;
+    align-items: center;
+    padding: 1rem; /* Overall padding */
+}
+
+/* Animation for the title */
+@keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.animate-bounce-slow {
+    animation: bounce-slow 3s infinite ease-in-out;
+}
+
+/* Styles for the app container (Default state - Frosted Glass Effect) */
+#app-container {
+    /* Frosted Glass Effect */
+    background-color: rgba(255, 255, 255, 0.5); /* 50% opacity */
+    backdrop-filter: blur(8px); 
+    -webkit-backdrop-filter: blur(8px); /* For Safari support */
+    
+    border-radius: 2.5rem; /* More rounded */
+    padding: 1.5rem; /* Responsive padding */
+    box-shadow: 0 12px 25px rgba(0,0,0,0.4); 
+    margin: auto; 
+    width: 100%;
+    max-width: 1200px; 
+    min-height: auto; 
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease; /* Smooth transition for visual changes */
+    position: relative; /* ADDED: Enables absolute positioning of children like the fullscreen button */
+}
+
+/* Style for the main app fullscreen toggle button - Positioned Top Right */
+#app-fullscreen-btn {
+    position: absolute;
+    top: 1.5rem; /* Position from the top, matching padding */
+    right: 1.5rem; /* Position from the right, matching padding */
+    z-index: 50; /* Ensure it is visible above main content */
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    background-color: #20b2aa; /* Vibrant Teal Green */
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: background-color 0.2s;
+    line-height: 1; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+#app-fullscreen-btn:hover {
+    background-color: #1a8b84;
+}
+
+/* === FULLSCREEN OVERRIDE STYLES === */
+/* Targets the #app-container when it is the element in fullscreen mode. */
+/* This restores the background image and transparency, while removing shadow/corners. */
+#app-container:fullscreen,
+#app-container:-webkit-full-screen,
+#app-container:-moz-full-screen,
+#app-container:-ms-fullscreen {
+    /* 1. RE-APPLY BODY BACKGROUND FOR FULLSCREEN SO BACKDROP HAS SOMETHING TO BLUR */
+    background-image: url('images/ABC Animals Zoo Background.jpg') !important; /* Ensures the background image is used in fullscreen */
+    background-size: cover !important;
+    background-position: top center !important; 
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important; 
+    
+    /* 2. RESTORE APP CONTAINER'S DEFAULT FROSTED GLASS EFFECT (using 0.5 opacity) */
+    background-color: rgba(255, 255, 255, 0.5) !important; /* Keep the transparent color */
+    backdrop-filter: blur(8px) !important; 
+    -webkit-backdrop-filter: blur(8px) !important; 
+
+    /* Standard fullscreen cleanup (removing box shadow and rounded corners) */
+    box-shadow: none !important; 
+    border-radius: 0 !important; 
+    padding: 2rem !important; 
+    width: 100vw;
+    height: 100vh;
+}
+/* ================================== */
+
+
+/* Custom styles for the video player to ensure full visibility */
+#video-container {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95); /* Darker, slightly transparent black for video overlay */
+    z-index: 100;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative; 
+    color: white; 
+    padding: 0; 
+}
+/* Style for the video player wrapper to fill the fullscreen container entirely */
+#local-video-wrapper {
+    width: 100vw; 
+    height: 100vh; 
+    max-width: none; 
+    border-radius: 0; 
+    overflow: hidden;
+    box-shadow: none; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+}
+/* Style the HTML video element */
+#local-video-player {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensures video content is fully visible without cropping */
+}
+
+/* Style for the close button, slightly larger and more noticeable */
+#close-video-btn {
+    position: absolute;
+    top: 1rem; 
+    right: 1rem; 
+    z-index: 101; 
+    font-size: 2.2rem; 
+    padding: 0.6rem 1.2rem;
+    min-width: 3.5rem; 
+    min-height: 3.5rem;
+    border-radius: 9999px;
+    background-color: rgba(255, 69, 0, 0.9); 
+    border: 3px solid white; 
+    box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* Ensure text visibility for video title when in fullscreen */
+#video-title {
+    color: white !important;
+    margin-top: 1rem; 
+    margin-bottom: 0.5rem;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%; 
+    text-shadow: 0 0 10px rgba(0,0,0,0.9); 
+    font-size: 1.8rem; 
+    line-height: 1.2;
+}
+@media (min-width: 768px) { /* Medium screens and up */
+    #close-video-btn {
+        top: 2rem;
+        right: 2rem;
+        font-size: 2.5rem;
+        min-width: 4rem;
+        min-height: 4rem;
+    }
+    #video-title {
+        font-size: 3rem;
+        margin-top: 2rem;
+    }
+    #app-container {
+        padding: 3rem;
+    }
+}
+/* CORRECTED Mobile View Optimization: Hide Header for Small Screens */
+@media (max-width: 767px) {
+    /* The !important flag ensures this rule overrides the default display setting */
+    header {
+        display: none !important;
+    }
+
+    /* Optional: Adjust top padding for the main app container when the header is hidden */
+    #app-container {
+        padding-top: 1rem !important; /* Reduces vertical space above the grid */
+    }
+}
